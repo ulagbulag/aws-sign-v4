@@ -1,8 +1,9 @@
 use chrono::{DateTime, Utc};
+use hex::ToHex;
 use http::header::HeaderMap;
-use url::Url;
+use ring::digest::{digest, SHA256};
 use std::collections::HashMap;
-use sha256::{digest};
+use url::Url;
 
 const SHORT_DATE: &str = "%Y%m%d";
 const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
@@ -127,7 +128,7 @@ where
             query_string = canonical_query_string(&self.url),
             headers = self.canonical_header_string(),
             signed = self.signed_header_string(),
-            sha256 = digest(self.body),
+            sha256 = digest(&SHA256, self.body).encode_hex::<String>(),
         )
     }
     pub fn sign(&'a self) -> String {
